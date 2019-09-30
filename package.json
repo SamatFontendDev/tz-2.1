@@ -1,0 +1,14 @@
+{
+  "name": "tz-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tz-1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "rimraf": "^3.0.0"
+  }
+}
