@@ -8,6 +8,16 @@ const removeSourceArg = process.argv[5];
 
 const readDir = (base, level, removeSource, summaryFolder) => {
     const files = fs.readdirSync(base);
-
     
+    function createDir() {
+        return new Promise((resolve, rejected) => {
+            
+        })
+    }
+
+    function checkDir() {
+        return new Promise((resolve, rejected) => {
+            
+        })
+    }
 }
