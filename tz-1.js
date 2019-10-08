@@ -7,7 +7,7 @@ const summaryFolderArg = process.argv[4];
 const removeSourceArg = process.argv[5];
 
 
-const readDir = (base, level, removeSource, summaryFolder) => {
+const readDir = (base, level, summaryFolder, removeSource) => {
   const files = fs.readdirSync(base);
   fs.access(`${summaryFolder}/myDir`, err => {
     if (err) {
