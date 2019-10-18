@@ -1,87 +1,73 @@
 const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
-const {promisify} = require('util');
+const util = require('util');
+
 
 const baseArg = process.argv[2];
 const levaelArg = process.argv[3];
 const summaryFolderArg = process.argv[4];
 const removeSourceArg = process.argv[5];
 
-function checkDir(path) {
-    return new Promise((resolve, rejected) => {
-        fs.stat(path, err => {
-            if (!err) {
-                rejected(err.message);
-            } else if (err.code === 'ENOENT') {
-               resolve(path);
-            }
-        });
-    }); 
-};
-
-
-function createFolder(path) {
-    return new Promise((resolve, rejected) => {
-        fs.mkdir(path, err => {
-            if (err) {
-                rejected(err.message);
-            } else {
+// const checkDir = util.promisify(fs.stat);
+function checkDir (path) {
+    return new Promise ((resolve, rejected) => {
+        fs.stat(path, function(err, stat) {
+            if(err == null) {
                 resolve(path);
-            }
-        })
-    })
-}
-
-function copy(from, to) {
-    return new Promise((resolve, rejected) => {
-        fs.link(from, to, err => {
-            if (err) {
-                rejected(err.message);
-            } else {
-                resolve(from);
-            }
-        })
+            } else if(err.code == 'ENOENT') {
+                rejected(err);
+            } 
+        });
     });
 }
-
+const createFolder = util.promisify(fs.mkdir);
+const copy = util.promisify(fs.link);
 
 const readDir = async (base, level, summaryFolder, removeSource) => {
     const files = fs.readdirSync(base);
-    await checkDir(`${summaryFolder}/myDir`);
-    await createFolder(`${summaryFolder}/myDir`);
-
+    
     
     files.forEach(async item => {
         let localBase = path.join(base, item);
         let state = fs.statSync(localBase);
         let dirName = item[0];
         
-        
+     
         if (state.isDirectory()) {
             readDir(localBase, level + 1);
         } else {
             try{
-                await checkDir(`${summaryFolder}myDir/${dirName}`);
-                await createFolder(`${summaryFolder}myDir/${dirName}`);
-                await copy(localBase, `${summaryFolder}myDir/${dirName}/${item}`);
-            } catch {
-                await copy(localBase, `${summaryFolder}myDir/${dirName}/${item}`);
+                await createFolder(`${summaryFolder}/${dirName}`);
+                await copy(localBase, `${summaryFolder}/${dirName}/${item}`);
+            } catch(err) {
+                await copy(localBase, `${summaryFolder}/${dirName}/${item}`);
             }
         }
     });
 
-    if (removeSource) {
-        rimraf(base, (err) => {
-          if (err) {
-            console.error(50, err.message);
-          } else {
-            console.log('source directory deleted!');
-          }
-        });
-    }
 }
-
+// (async function(){
+//     try{
+//         // await checkDir(`${summaryFolder}/myDir`);
+//       const checkDir2 = await checkDir(`/myDir`);
+//       console.log(58,checkDir2);
+     
+//     } catch(err) {
+      
+//       await createFolder(`./myDir`);
+//     }
+// })()
 
 
 readDir(baseArg, levaelArg, summaryFolderArg, removeSourceArg);
+
+// if (removeSource) {
+//     rimraf(base, (err) => {
+//       if (err) {
+//         console.error(50, err.message);
+//       } else {
+//         console.log('source directory deleted!');
+//       }
+//     });
+// }
